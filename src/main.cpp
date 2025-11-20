@@ -1,6 +1,6 @@
 #include <Arduino.h>
-#include <WiFi.h>
 #include <WebServer.h>
+#include <WiFi.h>
 #include <WiFiManager.h>
 
 const int LED_PIN = 2;
@@ -112,52 +112,54 @@ const char INDEX_HTML[] PROGMEM = R"rawliteral(
 </html>
 )rawliteral";
 
-void handleRoot(){
-  server.send_P(200, "text/html", INDEX_HTML);
+
+
+void handleRoot() { 
+    server.send_P(200, "text/html", INDEX_HTML); 
 }
 
-void handleState(){
-  int st = digitalRead(LED_PIN) == HIGH ? 1 : 0;
-  String payload = String("{\"state\":") + String(st) + String("}");
-  server.send(200, "application/json", payload);
+void handleState() {
+    int st = digitalRead(LED_PIN) == HIGH ? 1 : 0;
+    String payload = String("{\"state\":") + String(st) + String("}");
+    server.send(200, "application/json", payload);
 }
 
-void handleToggle(){
-  int cur = digitalRead(LED_PIN);
-  digitalWrite(LED_PIN, cur == HIGH ? LOW : HIGH);
-  handleState();
+void handleToggle() {
+    int cur = digitalRead(LED_PIN);
+    digitalWrite(LED_PIN, cur == HIGH ? LOW : HIGH);
+    handleState();
 }
 
-void handleIP(){
-  IPAddress ip = WiFi.localIP();
-  String payload = String("{\"ip\":\"") + ip.toString() + String("\"}");
-  server.send(200, "application/json", payload);
+void handleIP() {
+    IPAddress ip = WiFi.localIP();
+    String payload = String("{\"ip\":\"") + ip.toString() + String("\"}");
+    server.send(200, "application/json", payload);
 }
 
 void setup() {
-  Serial.begin(115200);
-  delay(100);
-  pinMode(LED_PIN, OUTPUT);
-  digitalWrite(LED_PIN, LOW);
+    Serial.begin(115200);
+    delay(100);
+    pinMode(LED_PIN, OUTPUT);
+    digitalWrite(LED_PIN, LOW);
 
-  WiFiManager wifiManager;
-  // Auto create AP config portal if can't connect to previous WiFi
-  if(!wifiManager.autoConnect("ESP32_AP")){
-    Serial.println("Failed to connect and hit timeout");
-    delay(3000);
-    ESP.restart();
-  }
+    WiFiManager wifiManager;
+    // Auto create AP config portal if can't connect to previous WiFi
+    if (!wifiManager.autoConnect("ESP32_AP")) {
+        Serial.println("Failed to connect and hit timeout");
+        delay(3000);
+        ESP.restart();
+    }
 
-  Serial.print("Connected! IP address: ");
-  Serial.println(WiFi.localIP());
+    Serial.print("Connected! IP address: ");
+    Serial.println(WiFi.localIP());
 
-  server.on("/", handleRoot);
-  server.on("/state", HTTP_GET, handleState);
-  server.on("/toggle", HTTP_GET, handleToggle);
-  server.on("/ip", HTTP_GET, handleIP);
-  server.begin();
+    server.on("/", handleRoot);
+    server.on("/state", HTTP_GET, handleState);
+    server.on("/toggle", HTTP_GET, handleToggle);
+    server.on("/ip", HTTP_GET, handleIP);
+    server.begin();
 }
 
-void loop() {
-  server.handleClient();
+void loop() { 
+    server.handleClient(); 
 }
